@@ -1,0 +1,11 @@
+gunicorn
+dash
+numpy
+pandas
+plotly
+sklearn
+date
+yfinance
+urllib
+xgboost
+

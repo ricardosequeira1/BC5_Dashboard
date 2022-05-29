@@ -1,3 +1,4 @@
+import gunicorn
 import pandas as pd
 import numpy as np
 from datetime import date as dt
@@ -7,8 +8,6 @@ import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Output, Input, State
-import dash_bootstrap_components as dbc  # pip install dash-bootstrap-components
-import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dateutil.relativedelta import relativedelta
@@ -144,7 +143,7 @@ asset_text = dcc.Textarea(id='asset_text',
 #                              value='AAPL')
 
 pick_year = dcc.DatePickerSingle(id='date-picker',
-                                 min_date_allowed=dt(1995, 8, 5),
+                                 min_date_allowed=dt(1900, 8, 5),
                                  max_date_allowed=dt.today(),
                                  initial_visible_month=dt(2015, 1, 1),
                                  date=dt(2015, 1, 1)
@@ -185,7 +184,7 @@ server = app.server
 
 app.layout = html.Div([
     html.Div([
-        html.H1('Asset Analysis', style={'textAlign': 'center', 'font-family': 'ui-monospace'})
+        html.H1('Asset Analysis', style={'textAlign': 'center', 'background-color': '#f9f9f9'})
     ], className='pretty_container'),
     html.Div([
         html.Div([
@@ -208,23 +207,23 @@ app.layout = html.Div([
         html.Div([
             html.Div([
                 html.Div([
-                    html.H4('Name:', style={'background-color': '#ffffff'}),
+                    html.H4(id='title_1st', style={'background-color': '#ffffff'}),
                     html.H5(id='company_name', style={'background-color': '#ffffff'})
                 ], style={'width': '20%'}, className='inside_container'),
                 html.Div([
-                    html.H4('Sector:', style={'background-color': '#ffffff'}),
+                    html.H4(id='title_2nd', style={'background-color': '#ffffff'}),
                     html.H5(id='sector_name', style={'background-color': '#ffffff'})
                 ], style={'width': '20%'}, className='inside_container'),
                 html.Div([
-                    html.H4('Beta', style={'background-color': '#ffffff'}),
+                    html.H4(id='title_3rd', style={'background-color': '#ffffff'}),
                     html.H5(id='beta_value', style={'background-color': '#ffffff'})
                 ], style={'width': '20%'}, className='inside_container'),
                 html.Div([
-                    html.H4('Free Cash Flow:', style={'background-color': '#ffffff'}),
+                    html.H4(id='title_4th', style={'background-color': '#ffffff'}),
                     html.H5(id='fcf_value', style={'background-color': '#ffffff'})
                 ], style={'width': '20%'}, className='inside_container'),
                 html.Div([
-                    html.H4('Return on Equity:', style={'background-color': '#ffffff'}),
+                    html.H4(id='title_5th', style={'background-color': '#ffffff'}),
                     html.H5(id='return_on_equity_value', style={'background-color': '#ffffff'})
                 ], style={'width': '20%'}, className='inside_container'),
             ], style={'height': '20%', 'display': 'flex'}),
@@ -321,8 +320,8 @@ app.layout = html.Div([
         ], style={'display': 'flex'}),
     ], className='pretty_container'),
     html.Div([
-        html.H3('Authors: Afonso Ramos, Beatriz Gonçalves, Helena Morais, Ricardo Sequeira ', style={'background-color': '#ffffff'}, className='pretty_container')
-    ]),
+        html.H3('Authors: Afonso Ramos, Beatriz Gonçalves, Helena Morais, Ricardo Sequeira ', style={'background-color': '#f9f9f9'})
+    ], className='pretty_container'),
 ])
 
 # ------------ app callback
@@ -770,10 +769,15 @@ def update_indicators(n_clicks, indicator, asset, date):
 
 @app.callback(
     [
+        Output("title_1st", "children"),
         Output("company_name", "children"),
+        Output("title_2nd", "children"),
         Output("sector_name", "children"),
+        Output("title_3rd", "children"),
         Output("beta_value", "children"),
+        Output("title_4th", "children"),
         Output("fcf_value", "children"),
+        Output("title_5th", "children"),
         Output("return_on_equity_value", "children")
     ],
     [
@@ -786,29 +790,45 @@ def update_indicators(n_clicks, indicator, asset, date):
 )
 def update_information(n_clicks, asset, date):
 
-    if asset in crypto:
+    ticker = yf.Ticker(asset)
+    info = ticker.stats()
 
-        cryptot = yf.Ticker(asset)
-        info = cryptot.stats()
+    if info.get('price').get('quoteType') == 'CRYPTOCURRENCY':
 
+        title1 = 'Name:'
         name = info.get('summaryProfile').get('name')
+        title2 = 'Sector:'
         sector = 'Cryptocurrency'
-        beta = 'Unavailable'
-        free_cash_flow = 'Unavailable'
-        return_on_equity = 'Unavailable'
+        title3 = 'Market Cap:'
+        marketcap = info.get('price').get('marketCap')
+        title4 = 'Volume 24h:'
+        volume = info.get('price').get('volume24Hr')
+        title5 = 'Start Date:'
+        start = info.get('summaryProfile').get('startDate')
 
-        return name, sector, beta, free_cash_flow, return_on_equity
+        return title1,\
+               name,\
+               title2,\
+               sector, \
+               title3,\
+               marketcap, \
+               title4,\
+               volume, \
+               title5,\
+               start
 
-    else:
+    elif info.get('price').get('quoteType') == 'EQUITY':
 
-        company = yf.Ticker(asset)
-        information = company.stats()
-
-        name = information.get('quoteType').get('shortName')
-        sector = information.get('summaryProfile').get('sector')
-        beta = information.get('defaultKeyStatistics').get('beta')
-        free_cash_flow = information.get('financialData').get('freeCashflow')
-        return_on_equity = information.get('financialData').get('returnOnEquity')
+        title1 = 'Company Name:'
+        name = info.get('quoteType').get('shortName')
+        title2 = 'Sector:'
+        sector = info.get('summaryProfile').get('sector')
+        title3 = 'Beta:'
+        beta = info.get('defaultKeyStatistics').get('beta')
+        title4 = 'Free Cash Flow:'
+        free_cash_flow = info.get('financialData').get('freeCashflow')
+        title5 = 'Return on Equity:'
+        return_on_equity = info.get('financialData').get('returnOnEquity')
 
         if free_cash_flow is None:
             free_cash_flow = 'Unavailable'
@@ -820,8 +840,64 @@ def update_information(n_clicks, asset, date):
         else:
             return_on_equity = round(return_on_equity * 100, 2)
 
-    return name, sector, beta, f'{free_cash_flow}M $', f'{return_on_equity}%'
+        return title1,\
+               name, \
+               title2, \
+               sector, \
+               title3, \
+               beta, \
+               title4, \
+               f'{free_cash_flow}M $', \
+               title5, \
+               f'{return_on_equity}%'
 
+    elif info.get('price').get('quoteType') == 'INDEX':
+
+        title1 =  'Name:'
+        name = info.get('quoteType').get('shortName')
+        title2 = 'Sector:'
+        sector = info.get('quoteType').get('quoteType')
+        title3 = 'No More Information'
+        beta = ''
+        title4 = 'No More Information'
+        free_cash_flow = ''
+        title5 = 'No More Information'
+        return_on_equity = ''
+
+        return title1,\
+               name, \
+               title2, \
+               sector, \
+               title3, \
+               beta, \
+               title4, \
+               free_cash_flow, \
+               title5, \
+               return_on_equity
+
+    elif info.get('price').get('quoteType') == 'ETF':
+
+        title1 =  'Name:'
+        name = info.get('quoteType').get('shortName')
+        title2 = 'Sector:'
+        sector = info.get('quoteType').get('quoteType')
+        title3 = 'Fund Family:'
+        beta = info.get('defaultKeyStatistics').get('fundFamily')
+        title4 = 'Category:'
+        free_cash_flow = info.get('defaultKeyStatistics').get('category')
+        title5 = 'Total Number of Assets:'
+        return_on_equity = info.get('defaultKeyStatistics').get('totalAssets')
+
+        return title1,\
+               name, \
+               title2, \
+               sector, \
+               title3, \
+               beta, \
+               title4, \
+               free_cash_flow, \
+               title5, \
+               return_on_equity
 
 
 #---------predictions
@@ -947,6 +1023,8 @@ def update_predictions(n_clicks,predict_days,asset,date):
 
     return fig, mae, value_future, fig1
 
+#------------ news
+
 @app.callback(
     [
         Output("title", "children"),
@@ -969,7 +1047,7 @@ def update_news(n_clicks,asset):
 
     news = yf.Ticker(asset).news
 
-    if news:
+    if len(news) > 2:
         return f'Latest Financial News on {asset}',\
                news[0]['title'],\
                news[1]['title'],\
@@ -977,10 +1055,33 @@ def update_news(n_clicks,asset):
                news[0]['link'],\
                news[1]['link'],\
                news[2]['link']
-    else:
-        return f'No Financial News Available on {asset}', 'News Unavalaible', 'News Unavalaible', 'News Unavalaible',\
-               '', '', ''
 
+    elif len(news) == 2:
+        return f'Latest Financial News on {asset}',\
+               news[0]['title'],\
+               news[1]['title'],\
+               'Unavailable News',\
+               news[0]['link'],\
+               news[1]['link'],\
+               ''
+
+    elif len(news) == 1:
+        return f'Latest Financial News on {asset}',\
+               news[0]['title'],\
+               'Unavailable News',\
+               'Unavailable News',\
+               news[0]['link'],\
+               '',\
+               ''
+
+    else:
+        return f'Latest Financial News on {asset}',\
+               'Unavailable News',\
+               'Unavailable News',\
+               'Unavailable News',\
+               '',\
+               '',\
+               ''
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=3002)

@@ -283,17 +283,13 @@ app.layout = html.Div([
             ], style={'width': '80%'}),
             html.Div([
                 html.Div([
-                    html.Label('MAE:', style={'background-color': '#ffffff'}),
-                    html.H5(id='mae_value', style={'background-color': '#ffffff'})
-                ], style={'width': '150%', 'height': '24%'}, className='inside_container'),
-                html.Div([
                     html.Label('Prediction:', style={'background-color': '#ffffff'}),
                     html.H5(id='prediction_value', style={'background-color': '#ffffff'})
-                ], style={'width': '150%', 'height': '24%'}, className='inside_container'),
+                ], style={'width': '150%', 'height': '35%'}, className='inside_container'),
                 html.Div([
                     html.Label('Change to last Close Price:', style={'background-color': '#ffffff'}),
                     dcc.Graph(id='indicator_change', style={'background-color': '#ffffff'})
-                ], style={'width': '150%', 'height': '25%'}, className='inside_container'),
+                ], style={'width': '150%', 'height': '45%'}, className='inside_container'),
             ], style={'width': '10%'})
         ], style={'width': '85%', 'display': 'flex'}, className='pretty_container'),
     ], style={'display': 'flex'}),
@@ -905,7 +901,6 @@ def update_information(n_clicks, asset, date):
 @app.callback(
     [
         Output("predictions_line_graph", "figure"),
-        Output("mae_value", "children"),
         Output("prediction_value", "children"),
         Output("indicator_change", "figure"),
 
@@ -970,8 +965,6 @@ def update_predictions(n_clicks,predict_days,asset,date):
         day = day + relativedelta(days=1)
         dates.append(str(day))
 
-    mae = 1
-
     new_df = pd.DataFrame(predictions, dates)
     new_df.columns = ['Predictions']
 
@@ -1021,7 +1014,7 @@ def update_predictions(n_clicks,predict_days,asset,date):
     if value_future < value_last_day:
         fig1.update_traces(delta_decreasing_color='red')
 
-    return fig, mae, value_future, fig1
+    return fig, value_future, fig1
 
 #------------ news
 

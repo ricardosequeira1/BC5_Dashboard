@@ -6,7 +6,7 @@ Context:
 Warner Buffer and Gil Bates, partners of Investments4Some, after reviewing the last project that we made for them decided to hire us once again. The last project consisted in building a forecast model to predict cryptocurrencies values. Now, they are asking us to develop a dashboard for their financial analysts. However, they expect a flexible dashboard, that fetches daily updated data about any arbitrary financial asset. They expect to use this dashboard to inform the investment decisions of their internal financial team and external stakeholders.
 
 How to Use Guide:
-1 - Open the app (link in the end)
+1 - Open the app (link in the end) </n>
 2 - Choose an asset. 
 Here is a list of assets the user can try, divided by type of asset:
 •	Stock: AAPL, KO, DIS, JPM

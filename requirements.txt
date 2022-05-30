@@ -4,7 +4,7 @@ numpy
 pandas
 plotly
 sklearn
-date
+datetime
 yfinance
 urllib
 xgboost

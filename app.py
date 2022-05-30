@@ -75,7 +75,7 @@ if len(predictions) == 1:
 else:
     value_future = float(predictions[-1])
 
-
+del df
 
 # ---------- interactive components
 

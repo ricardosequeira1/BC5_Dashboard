@@ -16,7 +16,7 @@ pio.templates.default = "simple_white"
 
 
 asset = 'AAPL'
-prediction_days = 5
+predict_days = 5
 
 
 # ---------- interactive components

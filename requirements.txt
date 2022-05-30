@@ -6,6 +6,6 @@ plotly
 sklearn
 datetime
 yfinance
-request
+urllib
 xgboost
 

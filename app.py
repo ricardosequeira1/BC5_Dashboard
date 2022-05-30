@@ -15,68 +15,6 @@ from xgboost import XGBRegressor
 pio.templates.default = "simple_white"
 
 
-# --------1st try
-
-
-def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
-    dfs = pd.DataFrame(data)
-    cols = list()
-    # input sequence (t-n, ... t-1)
-    for i in range(n_in, 0, -1):
-        cols.append(dfs.shift(i))
-    # forecast sequence (t, t+1, ... t+n)
-    for i in range(0, n_out):
-        cols.append(dfs.shift(-i))
-    # put it all together
-    agg = pd.concat(cols, axis=1)
-    # drop rows with NaN values
-    if dropnan:
-        agg.dropna(inplace=True)
-    return agg.values
-
-
-df = yf.download('AAPL', start='2015-01-01', end=dt.today())
-
-# load the dataset
-series = df.Close
-values = series.values
-# transform the time series data into supervised learning
-train = series_to_supervised(values, n_in=15)
-# split into input and output columns
-trainX, trainy = train[:, :-1], train[:, -1]
-# fit model
-model = XGBRegressor(objective='reg:squarederror', n_estimators=1000)
-model.fit(trainX, trainy)
-
-predictions = []
-predict_days = 5
-
-dates = []
-day = dt.today() - relativedelta(days=1)
-
-for i in range(predict_days):
-    # construct an input for a new prediction
-    row = values[-15:].flatten()
-    # make a one-step prediction
-    yhat = model.predict(np.asarray([row]))
-    # print('Input: %s, Predicted: %.3f' % (row, yhat[0]))
-
-    predictions.append(float(yhat))
-    values = list(values)
-    yhat = float(yhat)
-    values.append(yhat)
-    values = np.asarray(values)
-
-    day = day + relativedelta(days=1)
-    dates.append(str(day))
-
-if len(predictions) == 1:
-    value_future = float(predictions[0])
-else:
-    value_future = float(predictions[-1])
-
-del df
-
 # ---------- interactive components
 
 

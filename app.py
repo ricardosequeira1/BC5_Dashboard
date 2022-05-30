@@ -9,12 +9,13 @@ from dash.dependencies import Output, Input, State
 import plotly.graph_objects as go
 import plotly.io as pio
 from dateutil.relativedelta import relativedelta
-#import sklearn
+import sklearn
 from xgboost import XGBRegressor
 
 pio.templates.default = "simple_white"
 
-#--------1st try
+# --------1st try
+
 
 def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
     dfs = pd.DataFrame(data)
@@ -31,6 +32,7 @@ def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
     if dropnan:
         agg.dropna(inplace=True)
     return agg.values
+
 
 df = yf.download('AAPL', start='2015-01-01', end=dt.today())
 df['MA20'] = df.Close.rolling(20).mean()
@@ -65,7 +67,7 @@ for i in range(predict_days):
     row = values[-15:].flatten()
     # make a one-step prediction
     yhat = model.predict(np.asarray([row]))
-    #print('Input: %s, Predicted: %.3f' % (row, yhat[0]))
+    # print('Input: %s, Predicted: %.3f' % (row, yhat[0]))
 
     predictions.append(float(yhat))
     values = list(values)
@@ -91,12 +93,6 @@ else:
 asset_text = dcc.Textarea(id='asset_text',
                           placeholder='Select an asset:',
                           value='AAPL')
-
-#asset_dropdown = dcc.Dropdown(id='dropdown_stock',
-#                              options=symb,
-#                              searchable=True,
-#                              placeholder="Select an asset:",
-#                              value='AAPL')
 
 pick_year = dcc.DatePickerSingle(id='date-picker',
                                  min_date_allowed=dt(1900, 8, 5),
@@ -155,7 +151,9 @@ app.layout = html.Div([
             html.Div([
                 html.Br(),
                 html.Br(),
-                html.Img(src=app.get_asset_url('1stmenu.png'), style={'width': '100%', 'position': 'bottom', 'opacity': '80%'}),
+                html.Img(src=app.get_asset_url('1stmenu.png'), style={'width': '100%',
+                                                                      'position': 'bottom',
+                                                                      'opacity': '80%'}),
             ])
         ], style={'width': '24%'}, className='pretty_container'),
         html.Div([
@@ -228,7 +226,9 @@ app.layout = html.Div([
                 predicted_days_radio
             ], className='inside_container'),
             html.Div([
-                html.Img(src=app.get_asset_url('ToTheMoon.png'), style={'width': '100%', 'position': 'bottom', 'opacity': '80%'}),
+                html.Img(src=app.get_asset_url('ToTheMoon.png'), style={'width': '100%',
+                                                                        'position': 'bottom',
+                                                                        'opacity': '80%'}),
             ]),
         ], style={'width': '27%'}, className='pretty_container'),
         html.Div([
@@ -270,7 +270,8 @@ app.layout = html.Div([
         ], style={'display': 'flex'}),
     ], className='pretty_container'),
     html.Div([
-        html.H3('Authors: Afonso Ramos, Beatriz Gonçalves, Helena Morais, Ricardo Sequeira ', style={'background-color': '#f9f9f9'})
+        html.H3('Authors: Afonso Ramos, Beatriz Gonçalves, Helena Morais, Ricardo Sequeira ',
+                style={'background-color': '#f9f9f9'})
     ], className='pretty_container'),
 ])
 
@@ -279,6 +280,7 @@ app.layout = html.Div([
 ##################################
 # 1st graph #################
 #################################
+
 
 @app.callback(
     [
@@ -316,6 +318,7 @@ def update_history(n_clicks, asset, date):
 # 1st indicator #################
 #################################
 
+
 @app.callback(
     [
         Output("1year_change_value", "figure"),
@@ -331,26 +334,26 @@ def update_history(n_clicks, asset, date):
         State("date-picker", "date")
     ]
 )
-def update_indicator1(n_clicks, asset,date):
+def update_indicator1(n_clicks, asset, date):
 
     df = yf.download(asset, start=date, end=dt.today())
 
-    ## 1year
+    # 1year
     value_1year_ago = float(df.loc[df.index[-365]].Close)
 
-    ## 6months
+    # 6months
     value_6month_ago = float(df.loc[df.index[-180]].Close)
 
-    ## 1month
+    # 1month
     value_1month_ago = float(df.loc[df.index[-30]].Close)
 
-    ## 1day
+    # 1day
     value_1day_ago = float(df.loc[df.index[-2]].Close)
 
-    ## Today
+    # Today
     value_today = float(df.loc[df.index[-1]].Close)
 
-    ## Figure 1
+    # Figure 1
 
     fig1 = go.Figure(go.Indicator(
         mode="delta",
@@ -365,7 +368,7 @@ def update_indicator1(n_clicks, asset,date):
     if value_today < value_1year_ago:
         fig1.update_traces(delta_decreasing_color='red')
 
-    ## Figure 2
+    # Figure 2
 
     fig2 = go.Figure(go.Indicator(
         mode="delta",
@@ -380,7 +383,7 @@ def update_indicator1(n_clicks, asset,date):
     if value_today < value_6month_ago:
         fig2.update_traces(delta_decreasing_color='red')
 
-    ## Figure 3
+    # Figure 3
 
     fig3 = go.Figure(go.Indicator(
         mode="delta",
@@ -395,7 +398,7 @@ def update_indicator1(n_clicks, asset,date):
     if value_today < value_1month_ago:
         fig3.update_traces(delta_decreasing_color='red')
 
-    ## Figure 4
+    # Figure 4
 
     fig4 = go.Figure(go.Indicator(
         mode="delta",
@@ -416,6 +419,7 @@ def update_indicator1(n_clicks, asset,date):
 ##################################
 # 2nd graph #################
 #################################
+
 
 @app.callback(
     [
@@ -679,8 +683,8 @@ def update_indicators(n_clicks, indicator, asset, date):
         df['14-high'] = df.Low.rolling(14).max()
         df['%K'] = (df['Close'] - df['14-low']) * 100 / (df['14-high'] - df['14-low'])
         df['%D'] = df['%K'].rolling(3).mean()
-        text = 'A stochastic oscillator is a momentum indicator comparing a particular closing price of a security to a \
-        range of its prices over a certain period of time. The sensitivity of the oscillator to market movements is \
+        text = 'A stochastic oscillator is a momentum indicator comparing a particular closing price of a security to \
+        a range of its prices over a certain period of time. The sensitivity of the oscillator to market movements is \
         reducible by adjusting that time period or by taking a moving average of the result. It is used to generate\
         overbought and oversold trading signals, utilizing a 0–100 bounded range of values. Transaction signals are \
         created when the %K crosses through a three-period moving average, which is called the %D.'
@@ -803,7 +807,7 @@ def update_information(n_clicks, asset, date):
 
     elif info.get('price').get('quoteType') == 'INDEX':
 
-        title1 =  'Name:'
+        title1 = 'Name:'
         name = info.get('quoteType').get('shortName')
         title2 = 'Sector:'
         sector = info.get('quoteType').get('quoteType')
@@ -827,7 +831,7 @@ def update_information(n_clicks, asset, date):
 
     elif info.get('price').get('quoteType') == 'ETF':
 
-        title1 =  'Name:'
+        title1 = 'Name:'
         name = info.get('quoteType').get('shortName')
         title2 = 'Sector:'
         sector = info.get('quoteType').get('quoteType')
@@ -850,7 +854,8 @@ def update_information(n_clicks, asset, date):
                return_on_equity
 
 
-#---------predictions
+# ---------predictions
+
 
 @app.callback(
     [
@@ -869,7 +874,7 @@ def update_information(n_clicks, asset, date):
         State("date-picker", "date")
     ]
 )
-def update_predictions(n_clicks,predict_days,asset,date):
+def update_predictions(n_clicks, predict_days, asset, date):
     # transform a time series dataset into a supervised learning dataset
     def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
         dfs = pd.DataFrame(data)
@@ -946,7 +951,7 @@ def update_predictions(n_clicks,predict_days,asset,date):
         yaxis_title="Close Price"
     )
 
-    ## Figure
+    # Figure
 
     if len(predictions) == 1:
         value_future = float(predictions[0])
@@ -970,7 +975,8 @@ def update_predictions(n_clicks,predict_days,asset,date):
 
     return fig, value_future, fig1
 
-#------------ news
+# ------------ news
+
 
 @app.callback(
     [
@@ -1029,6 +1035,7 @@ def update_news(n_clicks,asset):
                '',\
                '',\
                ''
+
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=3002)

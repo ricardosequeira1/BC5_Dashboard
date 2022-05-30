@@ -3,9 +3,8 @@ dash
 numpy
 pandas
 plotly
-sklearn
 datetime
 yfinance
 requests
 xgboost
-
+dateutil

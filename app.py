@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from datetime import date as dt
 import yfinance as yf
-from urllib.request import urlopen
 import dash
 from dash import dcc
 from dash import html

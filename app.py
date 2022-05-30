@@ -1,4 +1,3 @@
-#import gunicorn
 import pandas as pd
 import numpy as np
 from datetime import date as dt
@@ -11,52 +10,10 @@ from dash.dependencies import Output, Input, State
 import plotly.graph_objects as go
 import plotly.io as pio
 from dateutil.relativedelta import relativedelta
-import sklearn
+#import sklearn
 from xgboost import XGBRegressor
 
 pio.templates.default = "simple_white"
-
-
-#############
-
-symbols = []
-s = urlopen("https://raw.githubusercontent.com/ricardosequeira1/BC5_Dashboard/main/data/sp500-symbol-list.txt?token=GHSAT0AAAAAABRUUZGFY2EE7JPV6X2XJNCQYUFBYYQ")
-
-for line in s:
-    symbols.append(line)
-
-for i in range(len(symbols)):
-    symbols[i] = str(symbols[i])
-
-symb = []
-
-for i in symbols:
-    symb.append(i[2:-3])
-
-c = urlopen("https://raw.githubusercontent.com/ricardosequeira1/BC5_Dashboard/main/data/crypto.txt")
-
-cryptocurrencies = []
-
-for line in c:
-    cryptocurrencies.append(line)
-
-for i in range(len(cryptocurrencies)):
-    cryptocurrencies[i] = str(cryptocurrencies[i])
-
-crypto = []
-
-for i in cryptocurrencies:
-    crypto.append(i[2:-3])
-
-project = ['ADA-USD', 'ATOM-USD', 'AVAX-USD', 'AXS-USD', 'BTC-USD', 'ETH-USD', 'LINK-USD', 'LUNA1-USD', 'MATIC-USD',
-           'SOL-USD']
-
-for i in project:
-    if i not in crypto:
-        crypto.append(i)
-
-for i in crypto:
-    symb.append(i)
 
 #--------1st try
 
